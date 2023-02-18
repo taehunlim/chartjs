@@ -1,0 +1,18 @@
+body {
+  padding: 5%;
+  text-align: center;
+}
+canvas {
+  border: 1px solid gray;
+  border-radius: 3px;
+}
+#im_hover {
+  width: 50px;
+  height: auto;
+  padding: 5px;
+  border: 1px solid rgb(177, 177, 177);
+  position: absolute;
+  display: none;
+  background: rgba(111, 231, 43, 0.5);
+  border-radius: 5px;
+}
