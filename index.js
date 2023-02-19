@@ -1,4 +1,6 @@
-const drawChart = () => {
+const values = [90, 50, 40, 90, 100];
+
+const drawChart = (values) => {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -12,15 +14,17 @@ const drawChart = () => {
     max_y: height * 0.9,
   };
 
-  const values = [90, 50, 40, 90, 100];
-  const wid = position.max_x / values.length - position.min_x;
+  const barWidth = position.max_x / values.length - position.min_x;
 
   let number = 0;
 
   const writeText = (data, x, y) => {
-    const centerPosition = wid / 2 - ctx.measureText(data).width / 2;
-
+    const centerPosition = barWidth / 2 - ctx.measureText(data).width / 2;
     ctx.strokeText(data, x + centerPosition, y);
+  };
+
+  const drawBar = (x, y) => {
+    ctx.strokeRect(x, y, barWidth, position.max_y - y);
   };
 
   ctx.beginPath();
@@ -31,30 +35,21 @@ const drawChart = () => {
     ctx.clearRect(0, 0, width, height);
     values.forEach((data, idx) => {
       const divide = idx / values.length;
-      const ratio = 1 - number / 100;
+      const ratio = 1 - data / 100;
+      const currentX = position.min_x + position.max_x * divide;
+      const currentY = position.max_y * ratio;
 
       if (data > number) {
-        return ctx.strokeRect(
-          position.min_x + position.max_x * divide,
-          position.max_y * ratio,
-          wid,
-          position.max_y - position.max_y * ratio
-        );
+        const ratio = 1 - number / 100;
+        const currentY = position.max_y * ratio;
+
+        return drawBar(currentX, currentY);
       }
 
-      ctx.strokeRect(
-        position.min_x + position.max_x * divide,
-        position.max_y * (1 - data / 100),
-        wid,
-        position.max_y - position.max_y * (1 - data / 100)
-      );
+      drawBar(currentX, currentY);
 
       if (number >= Math.max(...values)) {
-        writeText(
-          data,
-          position.min_x + position.max_x * divide,
-          position.max_y + 20
-        );
+        writeText(data, currentX, position.max_y + 20);
 
         return clearInterval(interval);
       }
@@ -62,4 +57,4 @@ const drawChart = () => {
   }, 10);
 };
 
-drawChart();
+drawChart(values);
