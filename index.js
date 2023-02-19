@@ -11,8 +11,8 @@ let position = {
   max_y: height * 0.9,
 };
 
-let wid = 50;
-let values = [90, 50, 60, 20];
+let values = [90, 50, 40, 90, 100, 20, 10];
+let wid = position.max_x / values.length - position.min_x;
 
 ctx.beginPath();
 
@@ -20,21 +20,21 @@ let virtualVal = values.slice().map((_arg) => 1);
 let interval = setInterval(() => {
   ctx.clearRect(0, 0, width, height);
   virtualVal.forEach((data, idx) => {
-    let devide = idx / values.length;
+    let divide = idx / values.length;
     let ratio = 1 - data / 100;
 
     if (values[idx] > data) {
       data++;
       virtualVal[idx] = data;
       return ctx.strokeRect(
-        position.min_x + position.max_x * devide,
+        position.min_x + position.max_x * divide,
         position.max_y * ratio,
         wid,
         position.max_y - position.max_y * ratio
       );
     }
     return ctx.strokeRect(
-      position.min_x + position.max_x * devide,
+      position.min_x + position.max_x * divide,
       position.max_y * ratio,
       wid,
       position.max_y - position.max_y * ratio
