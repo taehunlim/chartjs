@@ -18,20 +18,27 @@ ctx.beginPath();
 
 let virtualVal = values.slice().map((_arg) => 1);
 let interval = setInterval(() => {
+  ctx.clearRect(0, 0, width, height);
   virtualVal.forEach((data, idx) => {
-    if (values[idx] > data) {
-      let devide = idx / values.length;
-      let ratio = 1 - data / 100;
+    let devide = idx / values.length;
+    let ratio = 1 - data / 100;
 
+    if (values[idx] > data) {
       data++;
       virtualVal[idx] = data;
-      ctx.strokeRect(
+      return ctx.strokeRect(
         position.min_x + position.max_x * devide,
         position.max_y * ratio,
         wid,
         position.max_y - position.max_y * ratio
       );
     }
+    return ctx.strokeRect(
+      position.min_x + position.max_x * devide,
+      position.max_y * ratio,
+      wid,
+      position.max_y - position.max_y * ratio
+    );
   });
   let checker = values.slice().map((_arg) => false);
   virtualVal.forEach((virtualData, virtualIdx) => {
