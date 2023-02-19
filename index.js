@@ -16,16 +16,16 @@ let wid = position.max_x / values.length - position.min_x;
 
 ctx.beginPath();
 
-let virtualVal = values.slice().map((_arg) => 1);
+let number = 0;
 let interval = setInterval(() => {
-  ctx.clearRect(0, 0, width, height);
-  virtualVal.forEach((data, idx) => {
-    let divide = idx / values.length;
-    let ratio = 1 - data / 100;
+  number++;
 
-    if (values[idx] > data) {
-      data++;
-      virtualVal[idx] = data;
+  ctx.clearRect(0, 0, width, height);
+  values.forEach((data, idx) => {
+    let divide = idx / values.length;
+    let ratio = 1 - number / 100;
+
+    if (data > number) {
       return ctx.strokeRect(
         position.min_x + position.max_x * divide,
         position.max_y * ratio,
@@ -33,29 +33,14 @@ let interval = setInterval(() => {
         position.max_y - position.max_y * ratio
       );
     }
-    return ctx.strokeRect(
-      position.min_x + position.max_x * divide,
-      position.max_y * ratio,
-      wid,
-      position.max_y - position.max_y * ratio
-    );
-  });
-  let checker = values.slice().map((_arg) => false);
-  virtualVal.forEach((virtualData, virtualIdx) => {
-    values.forEach((data, idx) => {
-      if (virtualData >= data && virtualIdx === idx) {
-        checker[idx] = true;
-      }
-    });
-  });
-  let breaker = true;
-  checker.forEach((arg) => {
-    if (!arg) {
-      breaker = false;
-    }
-  });
 
-  if (breaker) {
-    clearInterval(interval);
-  }
+    ctx.strokeRect(
+      position.min_x + position.max_x * divide,
+      position.max_y * (1 - data / 100),
+      wid,
+      position.max_y - position.max_y * (1 - data / 100)
+    );
+
+    if (number >= Math.max(...values)) clearInterval(interval);
+  });
 }, 10);
