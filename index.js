@@ -36,8 +36,8 @@ const drawChart = (values) => {
   };
 
   function getCurrentBar(currentX, currentY) {
-    const currentBar = values.filter((data, idx) => {
-      const { x: startX, y: startY } = getCurrentBarPosition(data, idx);
+    const currentBar = values.reduce((acc, cur, idx) => {
+      const { x: startX, y: startY } = getCurrentBarPosition(cur, idx);
 
       const endX = startX + barWidth;
       const endY = position.max_y;
@@ -45,9 +45,18 @@ const drawChart = (values) => {
       const isInX = currentX <= endX && currentX >= startX;
       const isInY = currentX <= endY && currentY >= startY;
 
-      return isInX && isInY;
-    });
-
+      if (isInX && isInY) {
+        acc.push({
+          data: cur,
+          idx,
+          position: {
+            x: startX,
+            y: startY,
+          },
+        });
+      }
+      return acc;
+    }, []);
     return currentBar[0];
   }
 
@@ -58,12 +67,18 @@ const drawChart = (values) => {
     const currentBar = getCurrentBar(x, y);
 
     if (currentBar) {
-      console.log(currentBar);
+      const { x, y } = currentBar.position;
+
+      ctx.clearRect(x - 1, y - 1, barWidth + 2, position.max_y - y + 2);
+
+      ctx.strokeStyle = "red";
+      ctx.strokeRect(x, y, barWidth, position.max_y - y);
     }
   };
 
   const animate = () => {
     let currentHeight = 0;
+
     ctx.beginPath();
 
     return function () {
@@ -83,16 +98,20 @@ const drawChart = (values) => {
 
           if (currentHeight >= Math.max(...values)) {
             writeText(data, currentX, position.max_y + 20);
+
+            if (idx === values.length - 1) {
+              canvas.addEventListener("mousemove", handleHoverEvent);
+            }
             return clearInterval(interval);
           }
         });
       }, 10);
+      isLoaded = true;
     };
   };
 
   const draw = animate();
   draw();
-  canvas.addEventListener("mousemove", handleHoverEvent);
 };
 
 drawChart(values);
