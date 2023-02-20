@@ -16,6 +16,16 @@ const drawChart = (values) => {
 
   const barWidth = position.max_x / values.length - position.min_x;
 
+  const getCurrentBarPosition = (value, idx) => {
+    const divide = idx / values.length;
+    const ratio = 1 - value / 100;
+
+    const x = position.min_x + position.max_x * divide;
+    const y = position.max_y * ratio;
+
+    return { x, y };
+  };
+
   const writeText = (data, x, y) => {
     const centerPosition = barWidth / 2 - ctx.measureText(data).width / 2;
     ctx.strokeText(data, x + centerPosition, y);
@@ -27,10 +37,9 @@ const drawChart = (values) => {
 
   function getCurrentBar(currentX, currentY) {
     const currentBar = values.filter((data, idx) => {
-      const divide = idx / values.length;
-      const startX = position.min_x + position.max_x * divide;
+      const { x: startX, y: startY } = getCurrentBarPosition(data, idx);
+
       const endX = startX + barWidth;
-      const startY = position.max_y * (1 - data / 100);
       const endY = position.max_y;
 
       const isInX = currentX <= endX && currentX >= startX;
@@ -63,15 +72,10 @@ const drawChart = (values) => {
 
         ctx.clearRect(0, 0, width, height);
         values.forEach((data, idx) => {
-          const divide = idx / values.length;
-          const ratio = 1 - data / 100;
-          const currentX = position.min_x + position.max_x * divide;
-          const currentY = position.max_y * ratio;
+          const { x: currentX, y: currentY } = getCurrentBarPosition(data, idx);
 
           if (data > currentHeight) {
-            const ratio = 1 - currentHeight / 100;
-            const currentY = position.max_y * ratio;
-
+            const { y: currentY } = getCurrentBarPosition(currentHeight, idx);
             return drawBar(currentX, currentY);
           }
 
