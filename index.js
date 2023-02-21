@@ -60,18 +60,29 @@ const drawChart = (values) => {
     return currentBar[0];
   }
 
+  let before;
   const handleHoverEvent = (event) => {
     const { clientX, clientY } = event;
     const x = clientX - canvas.offsetLeft;
     const y = clientY - canvas.offsetTop;
     const currentBar = getCurrentBar(x, y);
+    before = currentBar ? currentBar : before;
 
     if (currentBar) {
+      ctx.save();
       const { x, y } = currentBar.position;
 
       ctx.clearRect(x - 1, y - 1, barWidth + 2, position.max_y - y + 2);
 
       ctx.strokeStyle = "red";
+      ctx.strokeRect(x, y, barWidth, position.max_y - y);
+    } else if (before) {
+      ctx.save();
+      const { x, y } = before.position;
+
+      ctx.clearRect(x - 1, y - 1, barWidth + 2, position.max_y - y + 2);
+
+      ctx.strokeStyle = "black";
       ctx.strokeRect(x, y, barWidth, position.max_y - y);
     }
   };
