@@ -1,6 +1,8 @@
 const values = [90, 50, 40, 90, 100];
 
 const drawChart = (values) => {
+  let before;
+
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -60,7 +62,19 @@ const drawChart = (values) => {
     return currentBar[0];
   }
 
-  let before;
+  const toolTipMaker = (text, pos_x, pos_y, onOff) => {
+    const hover = document.getElementById("im_hover");
+    if (!onOff) {
+      hover.style.display = "none";
+      hover.innerHTML = "";
+    } else {
+      hover.style.display = "block";
+      hover.style.left = pos_x + pos_x * 0.02; // 커서와 툴팁 사이 간격
+      hover.style.top = pos_y + pos_y * 0.02; // 커서와 툴팁 사이 간격
+      hover.innerHTML = text;
+    }
+  };
+
   const handleHoverEvent = (event) => {
     const { clientX, clientY } = event;
     const x = clientX - canvas.offsetLeft;
@@ -70,12 +84,14 @@ const drawChart = (values) => {
 
     if (currentBar) {
       ctx.save();
+
       const { x, y } = currentBar.position;
 
       ctx.clearRect(x - 1, y - 1, barWidth + 2, position.max_y - y + 2);
 
       ctx.strokeStyle = "red";
       ctx.strokeRect(x, y, barWidth, position.max_y - y);
+      toolTipMaker(currentBar.data, clientX, clientY, true);
     } else if (before) {
       ctx.save();
       const { x, y } = before.position;
@@ -84,6 +100,7 @@ const drawChart = (values) => {
 
       ctx.strokeStyle = "black";
       ctx.strokeRect(x, y, barWidth, position.max_y - y);
+      toolTipMaker(0, 0, 0, false);
     }
   };
 
