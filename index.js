@@ -37,7 +37,7 @@ const drawChart = (values) => {
     ctx.strokeRect(x, y, barWidth, position.max_y - y);
   };
 
-  function getCurrentBar(currentX, currentY) {
+  const getCurrentBar = (currentX, currentY) => {
     const currentBar = values.reduce((acc, cur, idx) => {
       const { x: startX, y: startY } = getCurrentBarPosition(cur, idx);
 
@@ -60,7 +60,7 @@ const drawChart = (values) => {
       return acc;
     }, []);
     return currentBar[0];
-  }
+  };
 
   const toolTipMaker = (text, pos_x, pos_y, onOff) => {
     const hover = document.getElementById("im_hover");
