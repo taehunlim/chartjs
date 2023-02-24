@@ -1,4 +1,4 @@
-const values = [90, 50, 40, 90, 100];
+const values = [{ name: "name", data: [90, 50, 40, 90, 100] }];
 
 const drawChart = (values) => {
   let before;
@@ -16,10 +16,10 @@ const drawChart = (values) => {
     max_y: height * 0.9,
   };
 
-  const barWidth = position.max_x / values.length - position.min_x;
+  const barWidth = position.max_x / values[0].data.length - position.min_x;
 
   const getCurrentBarPosition = (value, idx) => {
-    const divide = idx / values.length;
+    const divide = idx / values[0].data.length;
     const ratio = 1 - value / 100;
 
     const x = position.min_x + position.max_x * divide;
@@ -38,7 +38,7 @@ const drawChart = (values) => {
   };
 
   const getCurrentBar = (currentX, currentY) => {
-    const currentBar = values.reduce((acc, cur, idx) => {
+    const currentBar = values[0].data.reduce((acc, cur, idx) => {
       const { x: startX, y: startY } = getCurrentBarPosition(cur, idx);
 
       const endX = startX + barWidth;
@@ -114,7 +114,7 @@ const drawChart = (values) => {
         currentHeight++;
 
         ctx.clearRect(0, 0, width, height);
-        values.forEach((data, idx) => {
+        values[0].data.forEach((data, idx) => {
           const { x: currentX, y: currentY } = getCurrentBarPosition(data, idx);
 
           if (data > currentHeight) {
@@ -124,10 +124,10 @@ const drawChart = (values) => {
 
           drawBar(currentX, currentY);
 
-          if (currentHeight >= Math.max(...values)) {
+          if (currentHeight >= Math.max(...values[0].data)) {
             writeText(data, currentX, position.max_y + 20);
 
-            if (idx === values.length - 1) {
+            if (idx === values[0].data.length - 1) {
               canvas.addEventListener("mousemove", handleHoverEvent);
             }
             return clearInterval(interval);
