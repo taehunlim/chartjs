@@ -1,8 +1,9 @@
-const values = [{ name: "name", data: [90, 50, 40, 90, 100] }];
+const values = [
+  { name: "name", data: [90, 50, 40, 90, 100] },
+  { name: "name", data: [40, 30, 60, 70, 90] },
+];
 
 const drawChart = (values) => {
-  let before;
-
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -18,11 +19,11 @@ const drawChart = (values) => {
 
   const barWidth = position.max_x / values[0].data.length - position.min_x;
 
-  const getCurrentBarPosition = (value, idx) => {
+  const getCurrentBarPosition = (value, idx, i) => {
     const divide = idx / values[0].data.length;
     const ratio = 1 - value / 100;
 
-    const x = position.min_x + position.max_x * divide;
+    const x = position.min_x + position.max_x * divide + i * barWidth;
     const y = position.max_y * ratio;
 
     return { x, y };
@@ -38,28 +39,34 @@ const drawChart = (values) => {
   };
 
   const getCurrentBar = (currentX, currentY) => {
-    const currentBar = values[0].data.reduce((acc, cur, idx) => {
-      const { x: startX, y: startY } = getCurrentBarPosition(cur, idx);
+    return values
+      .map((value, i) => {
+        const currentBar = value.data.reduce((acc, cur, idx) => {
+          const { x: startX, y: startY } = getCurrentBarPosition(cur, idx, i);
 
-      const endX = startX + barWidth;
-      const endY = position.max_y;
+          const endX = startX + barWidth;
+          const endY = position.max_y;
 
-      const isInX = currentX <= endX && currentX >= startX;
-      const isInY = currentX <= endY && currentY >= startY;
+          const isInX = currentX <= endX && currentX >= startX;
+          const isInY = currentX <= endY && currentY >= startY;
 
-      if (isInX && isInY) {
-        acc.push({
-          data: cur,
-          idx,
-          position: {
-            x: startX,
-            y: startY,
-          },
-        });
-      }
-      return acc;
-    }, []);
-    return currentBar[0];
+          if (isInX && isInY) {
+            acc.push({
+              data: cur,
+              idx,
+              position: {
+                x: startX,
+                y: startY,
+              },
+            });
+          }
+
+          return acc;
+        }, []);
+
+        return currentBar[0];
+      })
+      .filter((value) => value)[0];
   };
 
   const toolTipMaker = (text, pos_x, pos_y, onOff) => {
@@ -75,33 +82,38 @@ const drawChart = (values) => {
     }
   };
 
-  const handleHoverEvent = (event) => {
-    const { clientX, clientY } = event;
-    const x = clientX - canvas.offsetLeft;
-    const y = clientY - canvas.offsetTop;
-    const currentBar = getCurrentBar(x, y);
-    before = currentBar ? currentBar : before;
+  const handleHoverEvent = () => {
+    let before;
+    return function (event) {
+      const { clientX, clientY } = event;
+      const x = clientX - canvas.offsetLeft;
+      const y = clientY - canvas.offsetTop;
+      const currentBar = getCurrentBar(x, y);
 
-    if (currentBar) {
-      ctx.save();
+      if (before) {
+        ctx.save();
+        const { x, y } = before.position;
 
-      const { x, y } = currentBar.position;
+        ctx.clearRect(x - 1, y - 1, barWidth + 2, position.max_y - y + 2);
 
-      ctx.clearRect(x - 1, y - 1, barWidth + 2, position.max_y - y + 2);
+        ctx.strokeStyle = "black";
+        ctx.strokeRect(x, y, barWidth, position.max_y - y);
+        toolTipMaker(0, 0, 0, false);
+        before = null;
+      }
+      if (currentBar) {
+        before = currentBar;
+        ctx.save();
 
-      ctx.strokeStyle = "red";
-      ctx.strokeRect(x, y, barWidth, position.max_y - y);
-      toolTipMaker(currentBar.data, clientX, clientY, true);
-    } else if (before) {
-      ctx.save();
-      const { x, y } = before.position;
+        const { x, y } = currentBar.position;
 
-      ctx.clearRect(x - 1, y - 1, barWidth + 2, position.max_y - y + 2);
+        ctx.clearRect(x - 1, y - 1, barWidth + 2, position.max_y - y + 2);
 
-      ctx.strokeStyle = "black";
-      ctx.strokeRect(x, y, barWidth, position.max_y - y);
-      toolTipMaker(0, 0, 0, false);
-    }
+        ctx.strokeStyle = "red";
+        ctx.strokeRect(x, y, barWidth, position.max_y - y);
+        toolTipMaker(currentBar.data, clientX, clientY, true);
+      }
+    };
   };
 
   const animate = () => {
@@ -114,24 +126,34 @@ const drawChart = (values) => {
         currentHeight++;
 
         ctx.clearRect(0, 0, width, height);
-        values[0].data.forEach((data, idx) => {
-          const { x: currentX, y: currentY } = getCurrentBarPosition(data, idx);
+        values.forEach((value, i) => {
+          value.data.forEach((data, idx) => {
+            const { x: currentX, y: currentY } = getCurrentBarPosition(
+              data,
+              idx,
+              i
+            );
 
-          if (data > currentHeight) {
-            const { y: currentY } = getCurrentBarPosition(currentHeight, idx);
-            return drawBar(currentX, currentY);
-          }
-
-          drawBar(currentX, currentY);
-
-          if (currentHeight >= Math.max(...values[0].data)) {
-            writeText(data, currentX, position.max_y + 20);
-
-            if (idx === values[0].data.length - 1) {
-              canvas.addEventListener("mousemove", handleHoverEvent);
+            if (data > currentHeight) {
+              const { y: currentY } = getCurrentBarPosition(
+                currentHeight,
+                idx,
+                i
+              );
+              return drawBar(currentX, currentY);
             }
-            return clearInterval(interval);
-          }
+
+            drawBar(currentX, currentY);
+
+            if (currentHeight >= Math.max(...value.data)) {
+              writeText(data, currentX, position.max_y + 20);
+
+              if (idx === value.data.length - 1) {
+                canvas.addEventListener("mousemove", handleHoverEvent());
+              }
+              return clearInterval(interval);
+            }
+          });
         });
       }, 10);
       isLoaded = true;
