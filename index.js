@@ -1,6 +1,6 @@
 const values = [
   { name: "name", data: [90, 50, 40, 90, 100] },
-  { name: "name", data: [40, 30, 60, 70, 90] },
+  { name: "name", data: [40, 30, 20, 50, 100] },
 ];
 
 const drawChart = (values) => {
@@ -19,11 +19,11 @@ const drawChart = (values) => {
 
   const barWidth = position.max_x / values[0].data.length - position.min_x;
 
-  const getCurrentBarPosition = (value, idx, i) => {
-    const divide = idx / values[0].data.length;
-    const ratio = 1 - value / 100;
+  const getCurrentBarPosition = (valueIdx, dataIdx, data) => {
+    const divide = dataIdx / values[0].data.length;
+    const ratio = 1 - data / 100;
 
-    const x = position.min_x + position.max_x * divide + i * barWidth;
+    const x = position.min_x + position.max_x * divide + valueIdx * barWidth;
     const y = position.max_y * ratio;
 
     return { x, y };
@@ -40,9 +40,13 @@ const drawChart = (values) => {
 
   const getCurrentBar = (currentX, currentY) => {
     return values
-      .map((value, i) => {
+      .map((value, valueIdx) => {
         const currentBar = value.data.reduce((acc, cur, idx) => {
-          const { x: startX, y: startY } = getCurrentBarPosition(cur, idx, i);
+          const { x: startX, y: startY } = getCurrentBarPosition(
+            valueIdx,
+            idx,
+            cur
+          );
 
           const endX = startX + barWidth;
           const endY = position.max_y;
@@ -126,19 +130,19 @@ const drawChart = (values) => {
         currentHeight++;
 
         ctx.clearRect(0, 0, width, height);
-        values.forEach((value, i) => {
+        values.forEach((value, valueIdx) => {
           value.data.forEach((data, idx) => {
             const { x: currentX, y: currentY } = getCurrentBarPosition(
-              data,
+              valueIdx,
               idx,
-              i
+              data
             );
 
             if (data > currentHeight) {
               const { y: currentY } = getCurrentBarPosition(
-                currentHeight,
+                valueIdx,
                 idx,
-                i
+                currentHeight
               );
               return drawBar(currentX, currentY);
             }
