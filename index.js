@@ -17,7 +17,9 @@ const drawChart = (values) => {
     max_y: height * 0.9,
   };
 
-  const barWidth = position.max_x / values[0].data.length - position.min_x;
+  const barWidth =
+    position.max_x / (values[0].data.length * values.length) -
+    position.min_x / values.length;
 
   const getCurrentBarPosition = (valueIdx, dataIdx, data) => {
     const divide = dataIdx / values[0].data.length;
