@@ -54,7 +54,7 @@ const drawChart = (series) => {
           const endY = position.max_y;
 
           const isInX = currentX <= endX && currentX >= startX;
-          const isInY = currentX <= endY && currentY >= startY;
+          const isInY = currentY <= endY && currentY >= startY;
 
           if (isInX && isInY) {
             acc.push({
