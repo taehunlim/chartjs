@@ -1,9 +1,9 @@
-const values = [
+const series = [
   { name: "name", data: [90, 50, 40, 90, 100] },
   { name: "name", data: [40, 30, 20, 50, 100] },
 ];
 
-const drawChart = (values) => {
+const drawChart = (series) => {
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -18,14 +18,14 @@ const drawChart = (values) => {
   };
 
   const barWidth =
-    position.max_x / (values[0].data.length * values.length) -
-    position.min_x / values.length;
+    position.max_x / (series[0].data.length * series.length) -
+    position.min_x / series.length;
 
-  const getCurrentBarPosition = (valueIdx, dataIdx, data) => {
-    const divide = dataIdx / values[0].data.length;
+  const getCurrentBarPosition = (seriesIdx, dataIdx, data) => {
+    const divide = dataIdx / series[0].data.length;
     const ratio = 1 - data / 100;
 
-    const x = position.min_x + position.max_x * divide + valueIdx * barWidth;
+    const x = position.min_x + position.max_x * divide + seriesIdx * barWidth;
     const y = position.max_y * ratio;
 
     return { x, y };
@@ -41,11 +41,11 @@ const drawChart = (values) => {
   };
 
   const getCurrentBar = (currentX, currentY) => {
-    return values
-      .map((value, valueIdx) => {
-        const currentBar = value.data.reduce((acc, cur, idx) => {
+    return series
+      .map((series, seriesIdx) => {
+        const currentBar = series.data.reduce((acc, cur, idx) => {
           const { x: startX, y: startY } = getCurrentBarPosition(
-            valueIdx,
+            seriesIdx,
             idx,
             cur
           );
@@ -72,7 +72,7 @@ const drawChart = (values) => {
 
         return currentBar[0];
       })
-      .filter((value) => value)[0];
+      .filter((series) => series)[0];
   };
 
   const toolTipMaker = (text, pos_x, pos_y, onOff) => {
@@ -132,17 +132,17 @@ const drawChart = (values) => {
         currentHeight++;
 
         ctx.clearRect(0, 0, width, height);
-        values.forEach((value, valueIdx) => {
-          value.data.forEach((data, idx) => {
+        series.forEach((series, seriesIdx) => {
+          series.data.forEach((data, idx) => {
             const { x: currentX, y: currentY } = getCurrentBarPosition(
-              valueIdx,
+              seriesIdx,
               idx,
               data
             );
 
             if (data > currentHeight) {
               const { y: currentY } = getCurrentBarPosition(
-                valueIdx,
+                seriesIdx,
                 idx,
                 currentHeight
               );
@@ -151,10 +151,10 @@ const drawChart = (values) => {
 
             drawBar(currentX, currentY);
 
-            if (currentHeight >= Math.max(...value.data)) {
+            if (currentHeight >= Math.max(...series.data)) {
               writeText(data, currentX, position.max_y + 20);
 
-              if (idx === value.data.length - 1) {
+              if (idx === series.data.length - 1) {
                 canvas.addEventListener("mousemove", handleHoverEvent());
               }
               return clearInterval(interval);
@@ -170,4 +170,4 @@ const drawChart = (values) => {
   draw();
 };
 
-drawChart(values);
+drawChart(series);
