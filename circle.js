@@ -1,8 +1,6 @@
 const series = [30, 40, 100, 100];
 
 const drawChart = (series) => {
-  let degree = 0;
-
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -18,20 +16,25 @@ const drawChart = (series) => {
   });
 
   const drawCircle = () => {
+    let degree = 0;
+
     convArr.forEach((value, i) => {
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(width / 2, height / 2);
+
+      const centerDegree = value - 90;
+
       if (i == 0) {
         ctx.arc(
           width / 2,
           height / 2,
           radius,
-          (Math.PI / 180) * 0,
-          (Math.PI / 180) * value,
+          (Math.PI / 180) * -90,
+          (Math.PI / 180) * centerDegree,
           false
         );
-        degree = value;
+        degree = centerDegree;
       } else {
         ctx.arc(
           width / 2,
