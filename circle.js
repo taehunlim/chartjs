@@ -47,11 +47,33 @@ const drawChart = (series) => {
         degree = degree + value;
       }
 
+      console.log(degree);
       ctx.closePath();
       ctx.stroke();
       ctx.restore();
     });
   };
+
+  canvas.addEventListener("click", (event) => {
+    const x = event.clientX - canvas.offsetLeft;
+    const y = event.clientY - canvas.offsetTop;
+    const isIn = isInsideArc(x, y);
+    console.log(isIn);
+  });
+
+  function isInsideArc(x, y) {
+    const chartX = width / 2 - x;
+    const chartY = height / 2 - y;
+    const hypotenuse = Math.sqrt(
+      Math.abs(chartX * chartX) + Math.abs(chartY * chartY)
+    ); //피타고라스의 정리
+
+    if (radius >= hypotenuse) {
+      //중심점으로부터 반지름 이내에 들어왔는지 확인!
+      return true;
+    }
+    return false;
+  }
 
   drawCircle();
 };
