@@ -15,6 +15,31 @@ const drawChart = (series) => {
     return 360 * rate; //비율을 360을(degree) 곱해 비율에 따른 도(degree)를 구함.
   });
 
+  const drawArc = (startAngle, endAngle) => {
+    ctx.arc(
+      width / 2,
+      height / 2,
+      radius,
+      (Math.PI / 180) * startAngle,
+      (Math.PI / 180) * endAngle,
+      false
+    );
+  };
+
+  const isInsideArc = (x, y) => {
+    const chartX = width / 2 - x;
+    const chartY = height / 2 - y;
+    const hypotenuse = Math.sqrt(
+      Math.abs(chartX * chartX) + Math.abs(chartY * chartY)
+    ); //피타고라스의 정리
+
+    if (radius >= hypotenuse) {
+      //중심점으로부터 반지름 이내에 들어왔는지 확인!
+      return true;
+    }
+    return false;
+  };
+
   const drawCircle = () => {
     let degree = 0;
 
@@ -23,28 +48,14 @@ const drawChart = (series) => {
       ctx.beginPath();
       ctx.moveTo(width / 2, height / 2);
 
-      const centerDegree = value - 90;
-
       if (i == 0) {
-        ctx.arc(
-          width / 2,
-          height / 2,
-          radius,
-          (Math.PI / 180) * -90,
-          (Math.PI / 180) * centerDegree,
-          false
-        );
-        degree = centerDegree;
+        const endAngle = -90 + value;
+        drawArc(-90, endAngle);
+        degree = endAngle;
       } else {
-        ctx.arc(
-          width / 2,
-          height / 2,
-          radius,
-          (Math.PI / 180) * degree,
-          (Math.PI / 180) * (degree + value),
-          false
-        );
-        degree = degree + value;
+        const endAngle = degree + value;
+        drawArc(degree, endAngle);
+        degree = endAngle;
       }
 
       console.log(degree);
@@ -60,20 +71,6 @@ const drawChart = (series) => {
     const isIn = isInsideArc(x, y);
     console.log(isIn);
   });
-
-  function isInsideArc(x, y) {
-    const chartX = width / 2 - x;
-    const chartY = height / 2 - y;
-    const hypotenuse = Math.sqrt(
-      Math.abs(chartX * chartX) + Math.abs(chartY * chartY)
-    ); //피타고라스의 정리
-
-    if (radius >= hypotenuse) {
-      //중심점으로부터 반지름 이내에 들어왔는지 확인!
-      return true;
-    }
-    return false;
-  }
 
   drawCircle();
 };
