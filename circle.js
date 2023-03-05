@@ -1,6 +1,7 @@
 const series = [30, 40, 100, 100];
 
 const drawChart = (series) => {
+  let angleArr = [];
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -34,7 +35,14 @@ const drawChart = (series) => {
     ); //피타고라스의 정리
 
     if (radius >= hypotenuse) {
-      //중심점으로부터 반지름 이내에 들어왔는지 확인!
+      const atan2 = Math.atan2(chartY, chartX);
+      const currentRadius = (atan2 * 180) / Math.PI + 180;
+
+      angleArr.forEach((arr, idx) => {
+        if (currentRadius >= arr[0] && currentRadius <= arr[1]) {
+          console.log(idx);
+        }
+      });
       return true;
     }
     return false;
@@ -49,16 +57,20 @@ const drawChart = (series) => {
       ctx.moveTo(width / 2, height / 2);
 
       if (i == 0) {
-        const endAngle = -90 + value;
-        drawArc(-90, endAngle);
+        const endAngle = 270 + value;
+        drawArc(270, endAngle);
+        angleArr[i] = [270, endAngle];
+
         degree = endAngle;
       } else {
+        degree = degree > 360 ? degree - 360 : degree;
         const endAngle = degree + value;
         drawArc(degree, endAngle);
+        angleArr[i] = [degree, endAngle];
+
         degree = endAngle;
       }
 
-      console.log(degree);
       ctx.closePath();
       ctx.stroke();
       ctx.restore();
@@ -69,7 +81,6 @@ const drawChart = (series) => {
     const x = event.clientX - canvas.offsetLeft;
     const y = event.clientY - canvas.offsetTop;
     const isIn = isInsideArc(x, y);
-    console.log(isIn);
   });
 
   drawCircle();
