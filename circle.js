@@ -2,6 +2,8 @@ const series = [30, 40, 100, 100];
 
 const drawChart = (series) => {
   let angleArr = [];
+  let before = null;
+
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
 
@@ -27,7 +29,7 @@ const drawChart = (series) => {
     );
   };
 
-  const isInsideArc = (x, y) => {
+  const getCurrentAngle = (x, y) => {
     const chartX = width / 2 - x;
     const chartY = height / 2 - y;
     const hypotenuse = Math.sqrt(
@@ -38,14 +40,14 @@ const drawChart = (series) => {
       const atan2 = Math.atan2(chartY, chartX);
       const currentRadius = (atan2 * 180) / Math.PI + 180;
 
-      angleArr.forEach((arr, idx) => {
-        if (currentRadius >= arr[0] && currentRadius <= arr[1]) {
-          console.log(idx);
+      const currentAngle = angleArr.filter((angles) => {
+        if (currentRadius >= angles[0] && currentRadius <= angles[1]) {
+          return angles;
         }
       });
-      return true;
+
+      return currentAngle[0];
     }
-    return false;
   };
 
   const drawCircle = () => {
@@ -77,11 +79,42 @@ const drawChart = (series) => {
     });
   };
 
-  canvas.addEventListener("click", (event) => {
+  const handleHoverEvent = (event) => {
     const x = event.clientX - canvas.offsetLeft;
     const y = event.clientY - canvas.offsetTop;
-    const isIn = isInsideArc(x, y);
-  });
+
+    const currentAngle = getCurrentAngle(x, y);
+
+    if (before) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(width / 2, height / 2);
+      ctx.strokeStyle = "black";
+      ctx.globalCompositeOperation = "source-atop";
+
+      drawArc(before[0], before[1]);
+
+      ctx.closePath();
+      ctx.stroke();
+
+      before = null;
+    }
+
+    if (currentAngle) {
+      before = currentAngle;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(width / 2, height / 2);
+      ctx.strokeStyle = "red";
+
+      drawArc(currentAngle[0], currentAngle[1]);
+
+      ctx.closePath();
+      ctx.stroke();
+    }
+  };
+
+  canvas.addEventListener("mousemove", handleHoverEvent);
 
   drawCircle();
 };
