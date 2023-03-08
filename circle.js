@@ -27,6 +27,20 @@ const drawChart = (series) => {
       (Math.PI / 180) * endAngle,
       false
     );
+    ctx.fillStyle = "red";
+    ctx.fill();
+  };
+
+  const clearArc = (angles) => {
+    ctx.beginPath();
+    ctx.moveTo(width / 2, height / 2);
+
+    ctx.globalCompositeOperation = "destination-out";
+
+    drawArc(angles[0], angles[1]);
+
+    ctx.closePath();
+    ctx.stroke();
   };
 
   const getCurrentAngle = (x, y) => {
@@ -90,27 +104,19 @@ const drawChart = (series) => {
       ctx.beginPath();
       ctx.moveTo(width / 2, height / 2);
       ctx.strokeStyle = "black";
-      ctx.globalCompositeOperation = "source-atop";
+
+      ctx.globalCompositeOperation = "source-over";
 
       drawArc(before[0], before[1]);
 
       ctx.closePath();
       ctx.stroke();
-
       before = null;
     }
 
     if (currentAngle) {
+      clearArc(currentAngle);
       before = currentAngle;
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(width / 2, height / 2);
-      ctx.strokeStyle = "red";
-
-      drawArc(currentAngle[0], currentAngle[1]);
-
-      ctx.closePath();
-      ctx.stroke();
     }
   };
 
