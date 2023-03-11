@@ -18,30 +18,36 @@ const drawChart = (series) => {
     return 360 * rate; //비율을 360을(degree) 곱해 비율에 따른 도(degree)를 구함.
   });
 
-  const drawArc = (startAngle, endAngle) => {
+  const drawArc = (startAngle, endAngle, clock) => {
     ctx.arc(
       width / 2,
       height / 2,
       radius,
       (Math.PI / 180) * startAngle,
       (Math.PI / 180) * endAngle,
-      false
+      clock || false
     );
+
     ctx.fillStyle = "red";
     ctx.fill();
   };
 
-  const clearArc = (angles) => {
-    ctx.beginPath();
-    ctx.moveTo(width / 2, height / 2);
+  // const clearArc = (angles) => {
+  //   ctx.save();
+  //   ctx.beginPath();
+  //   ctx.moveTo(width / 2, height / 2);
 
-    ctx.globalCompositeOperation = "destination-out";
+  //   drawArc(angles[0], angles[1], false);
 
-    drawArc(angles[0], angles[1]);
+  //   ctx.globalCompositeOperation = "copy";
+  //   ctx.fillStyle = "red";
+  //   ctx.fill();
 
-    ctx.closePath();
-    ctx.stroke();
-  };
+  //   ctx.closePath();
+  //   ctx.stroke();
+
+  //   ctx.save();
+  // };
 
   const getCurrentAngle = (x, y) => {
     const chartX = width / 2 - x;
@@ -100,22 +106,37 @@ const drawChart = (series) => {
     const currentAngle = getCurrentAngle(x, y);
 
     if (before) {
+      before = null;
+      ctx.clearRect(
+        width / 2 - radius - 1,
+        height / 2 - radius - 1,
+        radius * 2 + 2,
+        radius * 2 + 2
+      );
+      drawCircle();
+    }
+
+    if (currentAngle && !before) {
+      ctx.clearRect(
+        width / 2 - radius - 1,
+        height / 2 - radius - 1,
+        radius * 2 + 2,
+        radius * 2 + 2
+      );
+      drawCircle();
+
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(width / 2, height / 2);
-      ctx.strokeStyle = "black";
 
-      ctx.globalCompositeOperation = "source-over";
+      drawArc(currentAngle[0], currentAngle[1]);
 
-      drawArc(before[0], before[1]);
+      ctx.fillStyle = "blue";
+      ctx.fill();
 
       ctx.closePath();
       ctx.stroke();
-      before = null;
-    }
 
-    if (currentAngle) {
-      clearArc(currentAngle);
       before = currentAngle;
     }
   };
