@@ -32,23 +32,6 @@ const drawChart = (series) => {
     ctx.fill();
   };
 
-  // const clearArc = (angles) => {
-  //   ctx.save();
-  //   ctx.beginPath();
-  //   ctx.moveTo(width / 2, height / 2);
-
-  //   drawArc(angles[0], angles[1], false);
-
-  //   ctx.globalCompositeOperation = "copy";
-  //   ctx.fillStyle = "red";
-  //   ctx.fill();
-
-  //   ctx.closePath();
-  //   ctx.stroke();
-
-  //   ctx.save();
-  // };
-
   const getCurrentAngle = (x, y) => {
     const chartX = width / 2 - x;
     const chartY = height / 2 - y;
@@ -105,8 +88,7 @@ const drawChart = (series) => {
 
     const currentAngle = getCurrentAngle(x, y);
 
-    if (before) {
-      before = null;
+    if (before && JSON.stringify(before) !== JSON.stringify(currentAngle)) {
       ctx.clearRect(
         width / 2 - radius - 1,
         height / 2 - radius - 1,
@@ -114,6 +96,7 @@ const drawChart = (series) => {
         radius * 2 + 2
       );
       drawCircle();
+      before = null;
     }
 
     if (currentAngle && !before) {

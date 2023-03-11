@@ -1,6 +1,7 @@
 body {
   padding: 5%;
   text-align: center;
+  background-color: lightcoral;
 }
 canvas {
   border: 1px solid gray;
