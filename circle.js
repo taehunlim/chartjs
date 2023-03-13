@@ -53,6 +53,28 @@ const drawChart = (series) => {
     }
   };
 
+  const degreesToRadians = (degrees) => {
+    const pi = Math.PI;
+    return degrees * (pi / 180);
+  };
+
+  const makeText = (x, y, idx) => {
+    let half = (y - x) / 2;
+    let degg = x + half;
+    let xx = Math.cos(degreesToRadians(degg)) * radius * 0.7 + width / 2;
+    let yy = Math.sin(degreesToRadians(degg)) * radius * 0.7 + height / 2;
+
+    let txt = series[idx];
+    let minus = ctx.measureText(txt).width / 2; //텍스트 절반길이
+    ctx.save();
+
+    ctx.fillStyle = "black";
+    ctx.font = "normal 14px serif";
+
+    ctx.fillText(txt, xx - minus, yy);
+    ctx.restore();
+  };
+
   const drawCircle = () => {
     let degree = 0;
 
@@ -64,6 +86,7 @@ const drawChart = (series) => {
       if (i == 0) {
         const endAngle = 270 + value;
         drawArc(270, endAngle);
+        makeText(270, endAngle, i);
         angleArr[i] = [270, endAngle];
 
         degree = endAngle;
@@ -71,6 +94,8 @@ const drawChart = (series) => {
         degree = degree > 360 ? degree - 360 : degree;
         const endAngle = degree + value;
         drawArc(degree, endAngle);
+        makeText(degree, endAngle, i);
+
         angleArr[i] = [degree, endAngle];
 
         degree = endAngle;
